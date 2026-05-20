@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wave Engine: Base Size Added</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --panel: #111111;
+            --border: #222222;
+            --accent: #ffffff;
+            --text: #999999;
+            --text-active: #ffffff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; background: var(--bg); color: var(--text); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+            display: flex; height: 100vh; overflow: hidden;
+        }
+
+        #controls { 
+            width: 260px; background: var(--panel); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; z-index: 10; flex-shrink: 0;
+            overflow-y: auto; padding: 20px; gap: 15px;
+        }
+
+        #canvas-container { position: relative; flex-grow: 1; background: #000; }
+        canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+
+        #stats {
+            position: absolute; top: 15px; right: 15px;
+            font-family: monospace; font-size: 10px; color: var(--text);
+            pointer-events: none; text-align: right;
+        }
+
+        .title { font-weight: 700; color: var(--text-active); font-size: 14px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .group { display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        label { font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .val { color: var(--accent); font-family: monospace; }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 2px; background: var(--border); outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: var(--accent); cursor: pointer; }
+        
+        select { background: #000; color: #fff; border: 1px solid var(--border); padding: 8px; font-size: 12px; outline: none; width: 100%; }
+        input[type="color"] { width: 100%; height: 25px; border: 1px solid var(--border); background: none; cursor: pointer; padding: 0; }
+        
+        .row { display: flex; gap: 5px; margin-top: 5px; }
+        button { 
+            flex: 1; padding: 10px; border: 1px solid var(--border); background: #000; 
+            color: #fff; cursor: pointer; font-size: 10px; text-transform: uppercase;
+        }
+        button:hover { background: #222; }
+
+        @media (max-width: 700px) {
+            body { flex-direction: column; }
+            #controls { width: 100%; height: 48%; border-right: none; border-top: 1px solid var(--border); order: 2; }
+            #canvas-container { order: 1; flex-grow: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="controls">
+    <div class="title">Wave Engine</div>
+
+    <div class="group">
+        <label>Shape</label>
+        <select id="shape-select">
+            <option value="circle">Circles</option>
+            <option value="square">Squares</option>
+        </select>
+    </div>
+
+    <div class="group">
+        <label>Grid Density <span class="val" id="v-density">High</span></label>
+        <input type="range" id="density" min="15" max="60" step="5">
+
+        <label>Base Size <span class="val" id="v-baseRadius">0</span></label>
+        <input type="range" id="baseRadius" min="0" max="15">
+
+        <label>Wave Speed <span class="val" id="v-waveSpeed">0</span></label>
+        <input type="range" id="waveSpeed" min="2" max="30">
+
+        <label>Wave Thickness <span class="val" id="v-triggerRadius">0</span></label>
+        <input type="range" id="triggerRadius" min="40" max="500">
+
+        <label>Max Growth <span class="val" id="v-maxGrowth">0</span></label>
+        <input type="range" id="maxGrowth" min="5" max="100">
+        
+        <label>Fade Sharpness <span class="val" id="v-sharpness">0</span></label>
+        <input type="range" id="sharpness" min="0.01" max="1.0" step="0.01">
+    </div>
+
+    <div class="group">
+        <label>Base Color</label>
+        <input type="color" id="baseColor">
+        <label>Wave Color</label>
+        <input type="color" id="activeColor">
+        <label style="color: var(--text-active); margin-top: 5px;">
+            <input type="checkbox" id="isRainbow"> Rainbow Mode
+        </label>
+    </div>
+
+    <div class="row">
+        <button id="resetBtn">Clear All</button>
+        <button id="saveBtn">Save Shot</button>
+    </div>
+</div>
+
+<div id="canvas-container">
+    <div id="stats">FPS: 0</div>
+    <canvas id="canvas"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const container = document.getElementById('canvas-container');
+    const statsEl = document.getElementById('stats');
+
+    let circles = [], ripples = [];
+    let width, height, lastTime = 0, frames = 0;
+
+    // НАЧАЛЬНЫЕ НАСТРОЙКИ
+    const conf = {
+        spacing: 30, 
+        baseRadius: 2, 
+        maxGrowth: 40, 
+        triggerRadius: 150, // Изменено со 180 на 150
+        sharpness: 0.12, 
+        waveSpeed: 12, 
+        baseColor: '#151515', 
+        activeColor: '#ffffff',
+        isRainbow: false, 
+        shape: 'circle'
+    };
+
+    const hexToRgb = hex => {
+        const i = parseInt(hex.slice(1), 16);
+        return { r: (i >> 16) & 255, g: (i >> 8) & 255, b: i & 255 };
+    };
+
+    function resize() {
+        width = canvas.width = container.offsetWidth;
+        height = canvas.height = container.offsetHeight;
+        circles = [];
+        for (let x = 0; x <= width + conf.spacing; x += conf.spacing) {
+            for (let y = 0; y <= height + conf.spacing; y += conf.spacing) {
+                circles.push({ x, y, r: conf.baseRadius });
+            }
+        }
+    }
+
+    function animate(t) {
+        frames++;
+        if (t > lastTime + 1000) {
+            statsEl.innerText = `FPS: ${Math.round(frames * 1000 / (t - lastTime))} | Particles: ${circles.length}`;
+            lastTime = t; frames = 0;
+        }
+
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, width, height);
+
+        const bC = hexToRgb(conf.baseColor);
+        const aC = hexToRgb(conf.activeColor);
+
+        for (let i = ripples.length - 1; i >= 0; i--) {
+            ripples[i].radius += conf.waveSpeed; 
+            ripples[i].power *= 0.985;
+            if (ripples[i].power < 0.01) ripples.splice(i, 1);
+        }
+
+        for (let i = 0; i < circles.length; i++) {
+            const c = circles[i];
+            let influence = 0;
+
+            for (let j = 0; j < ripples.length; j++) {
+                const r = ripples[j];
+                const d = Math.sqrt((r.x - c.x)**2 + (r.y - c.y)**2);
+                const diff = Math.abs(d - r.radius);
+                if (diff < conf.triggerRadius / 2) {
+                    influence = Math.max(influence, (1 - diff / (conf.triggerRadius / 2)) * r.power);
+                }
+            }
+
+            if (conf.isRainbow) {
+                ctx.fillStyle = `hsl(${(t/40 + influence*80)%360}, 70%, ${20 + influence*60}%)`;
+            } else {
+                const r = (bC.r + (aC.r - bC.r) * influence) | 0;
+                const g = (bC.g + (aC.g - bC.g) * influence) | 0;
+                const b = (bC.b + (aC.b - bC.b) * influence) | 0;
+                ctx.fillStyle = `rgb(${r},${g},${b})`;
+            }
+
+            let targetR = conf.baseRadius + (conf.maxGrowth * influence);
+            c.r += (targetR - c.r) * conf.sharpness;
+
+            if (c.r > 0.1) {
+                if (conf.shape === 'circle') {
+                    ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 6.28); ctx.fill();
+                } else {
+                    ctx.fillRect(c.x - c.r, c.y - c.r, c.r * 2, c.r * 2);
+                }
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+
+    const createWave = e => {
+        const r = canvas.getBoundingClientRect();
+        const ev = e.touches ? e.touches[0] : e;
+        const x = ev.clientX - r.left;
+        const y = ev.clientY - r.top;
+        ripples.push({ x, y, radius: 0, power: 1 });
+    };
+
+    canvas.addEventListener('mousedown', createWave);
+    canvas.addEventListener('touchstart', e => { createWave(e); e.preventDefault(); }, {passive: false});
+
+    const densityInput = document.getElementById('density');
+    const updateDensityText = (val) => {
+        let label = "Medium";
+        if (val <= 20) label = "Ultra (Heavy)";
+        else if (val <= 25) label = "High";
+        else if (val <= 35) label = "Medium";
+        else if (val <= 45) label = "Low";
+        else label = "Minimal";
+        document.getElementById('v-density').innerText = label;
+    };
+    
+    densityInput.oninput = e => {
+        const val = parseInt(e.target.value);
+        conf.spacing = 75 - val;
+        updateDensityText(val);
+        resize();
+    };
+
+    ['baseRadius', 'waveSpeed', 'triggerRadius', 'maxGrowth', 'sharpness', 'baseColor', 'activeColor'].forEach(id => {
+        document.getElementById(id).oninput = e => {
+            conf[id] = id.includes('Color') ? e.target.value : parseFloat(e.target.value);
+            document.getElementById('v-' + id).innerText = e.target.value;
+        };
+    });
+
+    document.getElementById('shape-select').onchange = e => conf.shape = e.target.value;
+    document.getElementById('isRainbow').onchange = e => conf.isRainbow = e.target.checked;
+    document.getElementById('resetBtn').onclick = () => ripples = [];
+    document.getElementById('saveBtn').onclick = () => {
+        const a = document.createElement('a'); a.download = 'wave-engine.png';
+        a.href = canvas.toDataURL(); a.click();
+    };
+
+    densityInput.value = 75 - conf.spacing;
+    updateDensityText(parseInt(densityInput.value));
+
+    document.getElementById('shape-select').value = conf.shape;
+    document.getElementById('isRainbow').checked = conf.isRainbow;
+
+    ['baseRadius', 'waveSpeed', 'triggerRadius', 'maxGrowth', 'sharpness', 'baseColor', 'activeColor'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.value = conf[id];
+            const label = document.getElementById('v-' + id);
+            if (label) label.innerText = conf[id];
+        }
+    });
+
+    window.addEventListener('resize', resize);
+    resize(); requestAnimationFrame(animate);
+</script>
+</body>
+</html>
