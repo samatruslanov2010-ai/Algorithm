@@ -37,13 +37,18 @@
             }
             #canvas-container { order: 1; flex-grow: 1; }
             #stats-overlay, #show-stats-btn { left: 10px !important; }
+            
+            .controls-hidden #open-controls-btn { left: 10px !important; }
+            .controls-hidden #stats-overlay, 
+            .controls-hidden #show-stats-btn { left: 50px !important; }
         }
 
+        /* --- Базовое положение инфо-панелей --- */
         #stats-overlay {
             position: absolute;
             top: 20px;
-            left: 320px;
-            padding: 30px 15px 15px 15px; 
+            left: 320px; 
+            padding: 40px 15px 15px 15px; 
             background: var(--stats-bg);
             backdrop-filter: blur(8px);
             border-left: 2px solid var(--accent);
@@ -56,7 +61,7 @@
             color: #fff;
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: all 0.3s ease;
+            transition: left 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
         }
 
         #stats-overlay.hidden {
@@ -65,44 +70,87 @@
             pointer-events: none;
         }
 
-        .toggle-hud-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 22px;
-            height: 22px;
+        /* --- Единый жесткий класс для ВСЕХ квадратных кнопок --- */
+        .icon-btn {
+            width: 30px;        /* Уменьшенный размер */
+            height: 30px;
+            min-width: 30px;    /* Жесткая блокировка ширины */
+            min-height: 30px;   /* Жесткая блокировка высоты */
+            max-width: 30px;
+            max-height: 30px;
+            flex-shrink: 0;     /* Запрет сжатия */
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 6px; /* Чуть округленные углы */
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            transition: 0.2s;
+            box-sizing: border-box;
+            outline: none;
+            line-height: 1;
+        }
+
+        /* Стиль для крестиков (✕) */
+        .btn-close {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-dim);
-            border-radius: 4px;
-            cursor: pointer;
             font-size: 14px;
-            padding: 0;
-            transition: 0.2s;
+        }
+        .btn-close:hover { 
+            background: #ff4d4d; 
+            color: white; 
+            border-color: #ff4d4d; 
         }
 
-        .toggle-hud-btn:hover { background: #ff4d4d; color: white; border-color: #ff4d4d; }
-
-        #show-stats-btn {
-            position: absolute;
-            top: 20px;
-            left: 320px;
-            width: 35px;
-            height: 35px;
+        /* Стиль для парящих кнопок (i, ⚙️) */
+        .btn-float {
             background: var(--panel-bg);
             border: 1px solid var(--accent);
             color: var(--accent);
-            border-radius: 4px;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
             font-weight: bold;
+            font-family: 'monospace';
+            font-size: 15px;
+            position: absolute;
+            display: none;
+            z-index: 20;
+        }
+        .btn-float:hover { 
+            background: var(--accent); 
+            color: var(--bg); 
+        }
+
+        /* Позиционирование парящих кнопок */
+        #show-stats-btn {
+            top: 20px;
+            left: 320px;
             z-index: 4;
         }
+        #open-controls-btn {
+            top: 20px;
+            left: 20px;
+            font-size: 16px;
+        }
+
+        /* Позиционирование крестика в окне статистики */
+        #hide-stats-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        /* --- Логика состояний --- */
+        .controls-hidden #controls { display: none !important; }
+        .controls-hidden #open-controls-btn { display: flex; }
+        
+        .controls-hidden #stats-overlay,
+        .controls-hidden #show-stats-btn {
+            left: 60px; 
+        }
+
+        /* ------------------------------------------------ */
 
         #controls { 
             width: 300px; 
@@ -117,6 +165,12 @@
             overflow-y: auto;
             flex-shrink: 0;
         }
+
+        .controls-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         
         #canvas-container { position: relative; flex-grow: 1; overflow: hidden; touch-action: none; }
         canvas { width: 100%; height: 100%; display: block; cursor: crosshair; image-rendering: pixelated; }
@@ -127,20 +181,23 @@
         .val { color: var(--accent); font-family: monospace; }
         input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: #2d2d30; border-radius: 2px; outline: none; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; cursor: pointer; }
-        select { background: #1a1a1e; color: white; border: 1px solid #333; padding: 8px; border-radius: 6px; width: 100%; font-size: 14px; }
+        select { background: #1a1a1e; color: white; border: 1px solid #333; padding: 8px; border-radius: 6px; width: 100%; font-size: 14px; outline: none; }
         input[type="color"] { width: 100%; height: 30px; border: none; background: none; cursor: pointer; }
         .btn-row { display: flex; gap: 10px; margin-top: auto; padding-top: 10px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 11px; transition: 0.2s; }
+        button.action-btn { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 11px; transition: 0.2s; }
         #clearBtn { background: #27272a; color: #fff; }
+        #clearBtn:hover { background: #3f3f46; }
         #saveBtn { background: var(--accent); color: #000; }
+        #saveBtn:hover { background: #fff; }
     </style>
 </head>
 <body>
 
-<button id="show-stats-btn" title="Показать информацию">i</button>
+<button class="icon-btn btn-float" id="show-stats-btn" title="Показать информацию">i</button>
+<button class="icon-btn btn-float" id="open-controls-btn" title="Открыть настройки">⚙️</button>
 
 <div id="stats-overlay">
-    <button class="toggle-hud-btn" id="hide-stats-btn">✕</button>
+    <button class="icon-btn btn-close" id="hide-stats-btn" title="Скрыть">✕</button>
     <div class="stats-item">FPS: <span id="fps-val">0</span></div>
     <div class="stats-item">Particles: <span id="count-val">0</span></div>
     <div class="stats-item">Spawn Points: <span id="spawn-val">0</span></div>
@@ -149,7 +206,10 @@
 </div>
 
 <div id="controls">
-    <div style="font-weight: 900; font-size: 20px; letter-spacing: -1px;">PIXEL<span style="color:var(--accent)">LAB</span></div>
+    <div class="controls-header">
+        <div style="font-weight: 900; font-size: 20px; letter-spacing: -1px;">PIXEL<span style="color:var(--accent)">LAB</span></div>
+        <button class="icon-btn btn-close" id="close-controls-btn" title="Скрыть панель">✕</button>
+    </div>
 
     <div class="group">
         <div class="group-title">Визуал</div>
@@ -171,7 +231,6 @@
         <label>Длина шлейфа <span class="val" id="val-trailAlpha">0.05</span></label>
         <input type="range" id="trailAlpha" min="0.01" max="0.5" step="0.01" value="0.05">
 
-        <!-- Увеличен максимум max до 15 и начальное значение до 3.5 -->
         <label>Скорость <span class="val" id="val-speed">3.5</span></label>
         <input type="range" id="speed" min="0" max="15" step="0.1" value="3.5">
 
@@ -189,8 +248,8 @@
     </div>
 
     <div class="btn-row">
-        <button id="clearBtn">СБРОС</button>
-        <button id="saveBtn">PNG</button>
+        <button class="action-btn" id="clearBtn">СБРОС</button>
+        <button class="action-btn" id="saveBtn">PNG</button>
     </div>
 </div>
 
@@ -204,8 +263,11 @@
     const container = document.getElementById('canvas-container');
     
     const statsOverlay = document.getElementById('stats-overlay');
-    const hideBtn = document.getElementById('hide-stats-btn');
-    const showBtn = document.getElementById('show-stats-btn');
+    const hideStatsBtn = document.getElementById('hide-stats-btn');
+    const showStatsBtn = document.getElementById('show-stats-btn');
+
+    const closeControlsBtn = document.getElementById('close-controls-btn');
+    const openControlsBtn = document.getElementById('open-controls-btn');
 
     const fpsEl = document.getElementById('fps-val');
     const countEl = document.getElementById('count-val');
@@ -216,7 +278,6 @@
     let lastTime = 0, frames = 0, fps = 0;
     let mouse = { x: 0, y: 0 };
     
-    // Начальная скорость изменена на 3.5 для мощного разлета сразу
     const config = { 
         sPattern: 'circle_solid',
         speed: 3.5, 
@@ -238,14 +299,24 @@
     window.addEventListener('resize', resize);
     resize();
 
-    hideBtn.onclick = () => {
+    // Панель информации (HUD)
+    hideStatsBtn.onclick = () => {
         statsOverlay.classList.add('hidden');
-        showBtn.style.display = 'flex';
+        showStatsBtn.style.display = 'flex';
+    };
+    showStatsBtn.onclick = () => {
+        statsOverlay.classList.remove('hidden');
+        showStatsBtn.style.display = 'none';
     };
 
-    showBtn.onclick = () => {
-        statsOverlay.classList.remove('hidden');
-        showBtn.style.display = 'none';
+    // Панель настроек (Включение/Выключение)
+    closeControlsBtn.onclick = () => {
+        document.body.classList.add('controls-hidden');
+        setTimeout(resize, 0); 
+    };
+    openControlsBtn.onclick = () => {
+        document.body.classList.remove('controls-hidden');
+        setTimeout(resize, 0);
     };
 
     function getPatternPoints() {
