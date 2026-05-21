@@ -14,7 +14,18 @@
             --stats-bg: rgba(0, 0, 0, 0.8);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        /* Принудительно отключаем системное "свечение" (outline) при фокусе для всех элементов */
+        button, input, select {
+            outline: none !important;
+        }
+        button:focus, input:focus, select:focus {
+            outline: none !important;
+        }
 
         body { 
             margin: 0; 
@@ -72,23 +83,22 @@
 
         /* --- Единый жесткий класс для ВСЕХ квадратных кнопок --- */
         .icon-btn {
-            width: 30px;        /* Уменьшенный размер */
+            width: 30px;        
             height: 30px;
-            min-width: 30px;    /* Жесткая блокировка ширины */
-            min-height: 30px;   /* Жесткая блокировка высоты */
+            min-width: 30px;    
+            min-height: 30px;   
             max-width: 30px;
             max-height: 30px;
-            flex-shrink: 0;     /* Запрет сжатия */
+            flex-shrink: 0;     
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 6px; /* Чуть округленные углы */
+            border-radius: 6px; 
             cursor: pointer;
             padding: 0;
             margin: 0;
             transition: 0.2s;
             box-sizing: border-box;
-            outline: none;
             line-height: 1;
         }
 
@@ -105,11 +115,11 @@
             border-color: #ff4d4d; 
         }
 
-        /* Стиль для парящих кнопок (i, ⚙️) */
+        /* Стиль для парящих кнопок (i, ⚙️) - ТЕПЕРЬ БЕЗ ГОЛУБОГО ЦВЕТА */
         .btn-float {
             background: var(--panel-bg);
-            border: 1px solid var(--accent);
-            color: var(--accent);
+            border: 1px solid rgba(255, 255, 255, 0.15); /* Нейтральная серая рамка */
+            color: var(--text); /* Нейтральный белый/серый текст вместо голубого */
             font-weight: bold;
             font-family: 'monospace';
             font-size: 15px;
@@ -118,8 +128,8 @@
             z-index: 20;
         }
         .btn-float:hover { 
-            background: var(--accent); 
-            color: var(--bg); 
+            background: rgba(255, 255, 255, 0.1); 
+            color: #fff; 
         }
 
         /* Позиционирование парящих кнопок */
@@ -179,9 +189,9 @@
         .group-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; }
         label { font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
         .val { color: var(--accent); font-family: monospace; }
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: #2d2d30; border-radius: 2px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; cursor: pointer; }
-        select { background: #1a1a1e; color: white; border: 1px solid #333; padding: 8px; border-radius: 6px; width: 100%; font-size: 14px; outline: none; }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: #2d2d30; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--text); border-radius: 50%; cursor: pointer; }
+        select { background: #1a1a1e; color: white; border: 1px solid #333; padding: 8px; border-radius: 6px; width: 100%; font-size: 14px; }
         input[type="color"] { width: 100%; height: 30px; border: none; background: none; cursor: pointer; }
         .btn-row { display: flex; gap: 10px; margin-top: auto; padding-top: 10px; }
         button.action-btn { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 11px; transition: 0.2s; }
