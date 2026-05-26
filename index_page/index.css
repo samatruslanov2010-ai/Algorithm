@@ -1,0 +1,348 @@
+        :root {
+            --bg-body: #1e293b;
+            --bg-section: #161e2b;
+            --bg-surface: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #38bdf8;
+            --focus: 2px solid var(--accent);
+            --max: 1120px;
+            --gap: 24px;
+            --nav-h: 68px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            .projects-track {
+                scroll-behavior: auto;
+            }
+        }
+
+        body {
+            font-family: "Inter", system-ui, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: var(--focus);
+            outline-offset: 3px;
+        }
+
+        .skip-link {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            transform: translateY(-160%);
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 10px 14px;
+            text-decoration: none;
+            z-index: 2000;
+        }
+
+        .skip-link:focus-visible {
+            transform: translateY(0);
+        }
+
+        .wrap {
+            max-width: var(--max);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            position: fixed;
+            inset: 0 0 auto;
+            z-index: 1000;
+            background: rgba(30, 41, 59, 0.94);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(6px);
+        }
+
+        .header .wrap {
+            min-height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .logo {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav {
+            display: flex;
+            gap: 18px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            color: var(--accent);
+        }
+
+        main {
+            padding-top: var(--nav-h);
+        }
+
+        .section {
+            padding: 68px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .section--soft {
+            background: var(--bg-section);
+        }
+
+        .eyebrow {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: var(--accent);
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            line-height: 1.15;
+            margin-bottom: 14px;
+        }
+
+        h2 {
+            font-size: clamp(1.4rem, 3vw, 1.9rem);
+            margin-bottom: 10px;
+        }
+
+        .lead {
+            max-width: 62ch;
+            color: var(--text-muted);
+            margin-bottom: 26px;
+        }
+
+        .hero {
+            padding: 88px 0 62px;
+            border-top: none;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #1e00ff;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .about-text {
+            max-width: 74ch;
+            color: var(--text-muted);
+            display: grid;
+            gap: 12px;
+        }
+
+        .projects-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .projects-count {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .slider {
+            position: relative;
+        }
+
+        .projects-track {
+            display: flex;
+            gap: var(--gap);
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-snap-type: x mandatory;
+            padding: 4px 0 8px;
+        }
+
+        .projects-track::-webkit-scrollbar {
+            display: none;
+        }
+
+        .project {
+            flex: 0 0 calc((100% - var(--gap) * 2) / 3);
+            min-width: 290px;
+            scroll-snap-align: start;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .project:hover {
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .project img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .project-body {
+            padding: 14px 16px 16px;
+        }
+
+        .project-title {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .project-desc {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.94);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slider-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        #prevBtn {
+            left: -56px;
+        }
+
+        #nextBtn {
+            right: -56px;
+        }
+
+        .hint {
+            margin-top: 12px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .contact {
+            display: grid;
+            gap: 12px;
+            color: var(--text-muted);
+        }
+
+        .contact a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .contact a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 28px 0;
+            color: var(--text-dim);
+            font-size: 0.86rem;
+        }
+
+        @media (max-width: 1260px) {
+            #prevBtn {
+                left: 0;
+            }
+
+            #nextBtn {
+                right: 0;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .project {
+                flex: 0 0 calc((100% - var(--gap)) / 2);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slider-btn {
+                display: none !important;
+            }
+
+            .project {
+                flex: 0 0 85%;
+            }
+        }
