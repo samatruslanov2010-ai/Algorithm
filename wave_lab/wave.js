@@ -3,22 +3,26 @@ const ctx = canvas.getContext('2d', { alpha: false });
 const container = document.getElementById('canvas-container');
 const statsOverlay = document.getElementById('stats-overlay');
 const fpsEl = document.getElementById('fps-val');
-const countEl = document.getElementById('count-val');
 
-let circles = [], ripples = [];
-let width, height, lastTime = 0, frames = 0;
+// 1. ОБЪЯВЛЯЕМ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+let width = 0;
+let height = 0;
+let circles = [];
+let ripples = [];
+let frames = 0;
+let lastTime = 0;
 
-// НАЧАЛЬНЫЕ НАСТРОЙКИ
+// 2. ИСПРАВЛЕНО: переименовано в conf, чтобы совпадало с остальным кодом
 const conf = {
     spacing: 30,
-    baseRadius: 2,
-    maxGrowth: 40,
-    triggerRadius: 150, // Изменено со 180 на 150
+    baseRadius: 1,
+    maxGrowth: 60,
+    triggerRadius: 80,
     sharpness: 0.12,
     waveSpeed: 12,
     baseColor: '#151515',
     activeColor: '#4ddbff',
-    isRainbow: false,
+    isRainbow: true,
     shape: 'circle'
 };
 
@@ -38,28 +42,34 @@ function resize() {
     }
 }
 
+// 3. ИСПРАВЛЕНО: функция animate теперь только анимирует
 function animate(t) {
     frames++;
+
+    // Обновление счетчика FPS раз в секунду
     if (t > lastTime + 1000) {
         if (!statsOverlay.classList.contains('hidden')) {
-            fpsEl.innerText = Math.round(frames * 1000 / (t - lastTime));
-            countEl.innerText = circles.length;
+            fpsEl.innerText = Math.round((frames * 1000) / (t - lastTime));
         }
-        lastTime = t; frames = 0;
+        frames = 0;
+        lastTime = t;
     }
 
+    // Отрисовка кадра (теперь выполняется постоянно, а не раз в секунду)
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
 
     const bC = hexToRgb(conf.baseColor);
     const aC = hexToRgb(conf.activeColor);
 
+    // Обновление волн
     for (let i = ripples.length - 1; i >= 0; i--) {
         ripples[i].radius += conf.waveSpeed;
         ripples[i].power *= 0.985;
         if (ripples[i].power < 0.01) ripples.splice(i, 1);
     }
 
+    // Обновление и отрисовка кругов
     for (let i = 0; i < circles.length; i++) {
         const c = circles[i];
         let influence = 0;
@@ -87,14 +97,19 @@ function animate(t) {
 
         if (c.r > 0.1) {
             if (conf.shape === 'circle') {
-                ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, 6.28); ctx.fill();
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.r, 0, 6.28);
+                ctx.fill();
             } else {
                 ctx.fillRect(c.x - c.r, c.y - c.r, c.r * 2, c.r * 2);
             }
         }
     }
+
     requestAnimationFrame(animate);
 }
+
+// 4. ИСПРАВЛЕНО: Все обработчики событий вынесены за пределы функции animate
 
 const createWave = e => {
     const r = canvas.getBoundingClientRect();
@@ -110,42 +125,62 @@ canvas.addEventListener('touchstart', e => { createWave(e); e.preventDefault(); 
 const densityInput = document.getElementById('density');
 const updateDensityText = (val) => {
     let label = "Medium";
-    if (val <= 20) label = "Ultra (Heavy)";
-    else if (val <= 25) label = "High";
-    else if (val <= 35) label = "Medium";
-    else if (val <= 45) label = "Low";
-    else label = "Minimal";
+    if (val <= 20) label = "0.1";
+    else if (val <= 25) label = "1";
+    else if (val <= 35) label = "2";
+    else if (val <= 45) label = "3";
+    else label = "4";
     document.getElementById('v-density').innerText = label;
 };
 
-densityInput.oninput = e => {
-    const val = parseInt(e.target.value);
-    conf.spacing = 75 - val;
-    updateDensityText(val);
-    resize();
-};
+if (densityInput) {
+    densityInput.oninput = e => {
+        const val = parseInt(e.target.value);
+        conf.spacing = 75 - val;
+        updateDensityText(val);
+        resize();
+    };
+    densityInput.value = 75 - conf.spacing;
+    updateDensityText(parseInt(densityInput.value));
+}
 
 ['baseRadius', 'waveSpeed', 'triggerRadius', 'maxGrowth', 'sharpness', 'baseColor', 'activeColor'].forEach(id => {
-    document.getElementById(id).oninput = e => {
-        conf[id] = id.includes('Color') ? e.target.value : parseFloat(e.target.value);
-        document.getElementById('v-' + id).innerText = e.target.value;
-    };
+    const el = document.getElementById(id);
+    if (el) {
+        el.oninput = e => {
+            conf[id] = id.includes('Color') ? e.target.value : parseFloat(e.target.value);
+            const valEl = document.getElementById('v-' + id);
+            if (valEl) valEl.innerText = e.target.value;
+        };
+    }
 });
 
-document.getElementById('shape-select').onchange = e => conf.shape = e.target.value;
-document.getElementById('isRainbow').onchange = e => conf.isRainbow = e.target.checked;
-document.getElementById('resetBtn').onclick = () => ripples = [];
-document.getElementById('saveBtn').onclick = () => {
-    const a = document.createElement('a'); a.download = 'wave-engine.png';
-    a.href = canvas.toDataURL(); a.click();
-};
+const shapeSelect = document.getElementById('shape-select');
+if (shapeSelect) {
+    shapeSelect.onchange = e => conf.shape = e.target.value;
+    shapeSelect.value = conf.shape;
+}
 
-densityInput.value = 75 - conf.spacing;
-updateDensityText(parseInt(densityInput.value));
+const isRainbowInput = document.getElementById('isRainbow');
+if (isRainbowInput) {
+    isRainbowInput.onchange = e => conf.isRainbow = e.target.checked;
+    isRainbowInput.checked = conf.isRainbow;
+}
 
-document.getElementById('shape-select').value = conf.shape;
-document.getElementById('isRainbow').checked = conf.isRainbow;
+const resetBtn = document.getElementById('resetBtn');
+if (resetBtn) resetBtn.onclick = () => ripples = [];
 
+const saveBtn = document.getElementById('saveBtn');
+if (saveBtn) {
+    saveBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.download = 'wave-engine.png';
+        a.href = canvas.toDataURL();
+        a.click();
+    };
+}
+
+// Синхронизация начальных значений UI
 ['baseRadius', 'waveSpeed', 'triggerRadius', 'maxGrowth', 'sharpness', 'baseColor', 'activeColor'].forEach(id => {
     const input = document.getElementById(id);
     if (input) {
@@ -155,22 +190,35 @@ document.getElementById('isRainbow').checked = conf.isRainbow;
     }
 });
 
-document.getElementById('hide-stats-btn').onclick = () => {
-    statsOverlay.classList.add('hidden');
-    document.getElementById('show-stats-btn').style.display = 'flex';
-};
-document.getElementById('show-stats-btn').onclick = () => {
-    statsOverlay.classList.remove('hidden');
-    document.getElementById('show-stats-btn').style.display = 'none';
-};
-document.getElementById('close-controls-btn').onclick = () => {
-    document.body.classList.add('controls-hidden');
-    setTimeout(resize, 0);
-};
-document.getElementById('open-controls-btn').onclick = () => {
-    document.body.classList.remove('controls-hidden');
-    setTimeout(resize, 0);
-};
+// Кнопки интерфейса
+const hideStatsBtn = document.getElementById('hide-stats-btn');
+const showStatsBtn = document.getElementById('show-stats-btn');
+if (hideStatsBtn && showStatsBtn) {
+    hideStatsBtn.onclick = () => {
+        statsOverlay.classList.add('hidden');
+        showStatsBtn.style.display = 'flex';
+    };
+    showStatsBtn.onclick = () => {
+        statsOverlay.classList.remove('hidden');
+        showStatsBtn.style.display = 'none';
+    };
+}
+
+const closeControlsBtn = document.getElementById('close-controls-btn');
+const openControlsBtn = document.getElementById('open-controls-btn');
+if (closeControlsBtn && openControlsBtn) {
+    closeControlsBtn.onclick = () => {
+        document.body.classList.add('controls-hidden');
+        setTimeout(resize, 0);
+    };
+    openControlsBtn.onclick = () => {
+        document.body.classList.remove('controls-hidden');
+        setTimeout(resize, 0);
+    };
+}
 
 window.addEventListener('resize', resize);
-resize(); requestAnimationFrame(animate);
+
+// Старт
+resize();
+requestAnimationFrame(animate);

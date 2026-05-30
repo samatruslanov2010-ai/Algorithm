@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>Проект в разработке — DEV_LAB</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            /* Используем динамическую высоту для мобильных браузеров */
+            min-height: 100dvh; 
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            /* Убираем только горизонтальный скролл. Вертикальный появится только если экран экстремально мал */
+            overflow-x: hidden; 
+        }
+
+        /* Слой с заблюренной картинкой */
+        .dev-background {
+            position: fixed; /* Фон зафиксирован при любом скролле */
+            top: -10%; 
+            left: -10%;
+            width: 120%; 
+            height: 120%;
+            
+            /* УКАЖИ ЗДЕСЬ ПУТЬ К КАРТИНКЕ ТЕКУЩЕГО ПРОЕКТА */
+            background-image: url('/img/analiz.labog.png'); 
+            
+            background-size: cover;
+            background-position: center;
+            filter: blur(25px) brightness(0.25); 
+            z-index: 1;
+            transform: translateZ(0); /* Аппаратное ускорение блюра для мобилок */
+        }
+
+        /* Контейнер с текстом поверх фона */
+        .dev-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+            text-align: center;
+            color: #f8fafc;
+            /* Отступы по бокам не дадут тексту прилипнуть к краям экрана на мобилках */
+            padding: 20px 24px; 
+            box-sizing: border-box;
+        }
+
+        .dev-icon {
+            /* Иконка тоже масштабируется */
+            width: clamp(40px, 8vw, 56px);
+            height: clamp(40px, 8vw, 56px);
+            margin-bottom: clamp(16px, 4vw, 24px);
+            color: #38bdf8;
+            opacity: 0.9;
+        }
+
+        .dev-title {
+            /* Шрифт плавно меняется от 1.75rem на мобилках до 3.5rem на десктопе */
+            font-size: clamp(1.75rem, 6vw, 3.5rem);
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .dev-desc {
+            /* Описание плавно меняет размер */
+            font-size: clamp(0.95rem, 3vw, 1.125rem);
+            color: #94a3b8;
+            max-width: 520px;
+            line-height: 1.6;
+            margin: 0 0 clamp(24px, 6vw, 40px) 0;
+        }
+
+        /* Стилизованная кнопка назад */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            /* Умные отступы для кнопки (на мобилках чуть компактнее, но удобно для пальца) */
+            padding: clamp(12px, 3vw, 14px) clamp(20px, 5vw, 28px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Важно для iOS Safari */
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Легкая вибрация при нажатии на мобильных устройствах */
+        .btn-back:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="dev-background"></div>
+    
+    <main class="dev-content">
+        <svg class="dev-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+        
+        <h1 class="dev-title">Стадия разработки</h1>
+        <p class="dev-desc">Данный проект находится в процессе активного программирования и сборки логики. В скором времени здесь будет опубликован подробный кейс с деталями реализации</p>
+        
+        <a href="/index_page/index.html" class="btn-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Вернуться к проектам
+        </a>
+    </main>
+</body>
+</html>

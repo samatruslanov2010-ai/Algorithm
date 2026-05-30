@@ -20,11 +20,11 @@ let mouse = { x: 0, y: 0 };
 
 const config = {
     sPattern: 'circle_solid',
-    speed: 3.5,
+    speed: 4,
     spawnDensity: 8,
-    lifeSpan: 70,
+    lifeSpan: 90,
     trailAlpha: 0.05,
-    color: '#4ddbff',
+    color: '#4dfff9',
     isRainbow: true,
     pSize: 4,
     spawnScale: 45

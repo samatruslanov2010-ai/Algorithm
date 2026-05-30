@@ -1,77 +1,80 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wave Lab</title>
     <link rel="stylesheet" href="/wave_lab/wave.css">
 </head>
+
 <body>
+    <a href="../index_page/index.html" class="home-btn" title="На главную">Home</a>
 
-<button class="icon-btn btn-float" id="open-controls-btn" title="Открыть настройки">⚙️</button>
+    <button class="icon-btn btn-float" id="open-controls-btn" title="Открыть настройки">⚙️</button>
 
-<div id="controls">
-    <div class="controls-header">
-        <div class="logo">WAVE<span>LAB</span></div>
-        <button class="icon-btn btn-close" id="close-controls-btn" title="Скрыть панель">✕</button>
+    <div id="controls">
+        <div class="controls-header">
+            <div class="logo">WAVE<span>LAB</span></div>
+            <button class="icon-btn btn-close" id="close-controls-btn" title="Скрыть панель">✕</button>
+        </div>
+
+        <div class="group">
+            <div class="group-title">Визуал</div>
+            <label class="checkbox-label"><input type="checkbox" id="isRainbow"> Еффект Радуги</label>
+            <label>Цвет частиц</label>
+            <input type="color" id="baseColor">
+            <label>Цвет Волны</label>
+            <input type="color" id="activeColor">
+        </div>
+
+        <div class="group">
+            <div class="group-title">Формы</div>
+            <select id="shape-select">
+                <option value="circle">Круг</option>
+                <option value="square">Квадрат</option>
+            </select>
+        </div>
+
+        <div class="group">
+            <div class="group-title">Параметры</div>
+            <label>Плотность сетки <span class="val" id="v-density"></span></label>
+            <input type="range" id="density" min="15" max="60" step="5">
+
+            <label>Начальный размер <span class="val" id="v-baseRadius">0</span></label>
+            <input type="range" id="baseRadius" min="0" max="15">
+
+            <label>Скорость волны <span class="val" id="v-waveSpeed">0</span></label>
+            <input type="range" id="waveSpeed" min="2" max="30">
+
+            <label>Толщина волны <span class="val" id="v-triggerRadius">0</span></label>
+            <input type="range" id="triggerRadius" min="40" max="500">
+
+            <label>Максимальное увеличение <span class="val" id="v-maxGrowth">0</span></label>
+            <input type="range" id="maxGrowth" min="5" max="100">
+
+            <label>Резкость затухания <span class="val" id="v-sharpness">0</span></label>
+            <input type="range" id="sharpness" min="0.01" max="1.0" step="0.01">
+        </div>
+
+        <div class="btn-row">
+            <button class="action-btn" id="resetBtn">СБРОС</button>
+            <button class="action-btn" id="saveBtn">PNG</button>
+        </div>
     </div>
 
-    <div class="group">
-        <div class="group-title">Визуал</div>
-        <label class="checkbox-label"><input type="checkbox" id="isRainbow"> Rainbow Mode</label>
-        <label>Base Color</label>
-        <input type="color" id="baseColor">
-        <label>Wave Color</label>
-        <input type="color" id="activeColor">
+    <div id="canvas-container">
+        <button class="icon-btn btn-float" id="show-stats-btn" title="Показать информацию">i</button>
+
+        <div id="stats-overlay">
+            <button class="icon-btn btn-close" id="hide-stats-btn" title="Скрыть">✕</button>
+            <div class="stats-item">FPS: <span id="fps-val">0</span></div>
+        </div>
+
+        <canvas id="canvas"></canvas>
     </div>
 
-    <div class="group">
-        <div class="group-title">Геометрия</div>
-        <select id="shape-select">
-            <option value="circle">Circles</option>
-            <option value="square">Squares</option>
-        </select>
-    </div>
-
-    <div class="group">
-        <div class="group-title">Параметры</div>
-        <label>Grid Density <span class="val" id="v-density">High</span></label>
-        <input type="range" id="density" min="15" max="60" step="5">
-
-        <label>Base Size <span class="val" id="v-baseRadius">0</span></label>
-        <input type="range" id="baseRadius" min="0" max="15">
-
-        <label>Wave Speed <span class="val" id="v-waveSpeed">0</span></label>
-        <input type="range" id="waveSpeed" min="2" max="30">
-
-        <label>Wave Thickness <span class="val" id="v-triggerRadius">0</span></label>
-        <input type="range" id="triggerRadius" min="40" max="500">
-
-        <label>Max Growth <span class="val" id="v-maxGrowth">0</span></label>
-        <input type="range" id="maxGrowth" min="5" max="100">
-
-        <label>Fade Sharpness <span class="val" id="v-sharpness">0</span></label>
-        <input type="range" id="sharpness" min="0.01" max="1.0" step="0.01">
-    </div>
-
-    <div class="btn-row">
-        <button class="action-btn" id="resetBtn">СБРОС</button>
-        <button class="action-btn" id="saveBtn">PNG</button>
-    </div>
-</div>
-
-<div id="canvas-container">
-    <button class="icon-btn btn-float" id="show-stats-btn" title="Показать информацию">i</button>
-
-    <div id="stats-overlay">
-        <button class="icon-btn btn-close" id="hide-stats-btn" title="Скрыть">✕</button>
-        <div class="stats-item">FPS: <span id="fps-val">0</span></div>
-        <div class="stats-item">Particles: <span id="count-val">0</span></div>
-    </div>
-
-    <canvas id="canvas"></canvas>
-</div>
-
-<script src="/wave_lab/wave.js"></script>
+    <script src="/wave_lab/wave.js"></script>
 </body>
+
 </html>
